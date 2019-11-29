@@ -2,10 +2,15 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var _Object$defineProperty = _interopDefault(require('@babel/runtime-corejs2/core-js/object/define-property'));
+var _Object$defineProperties = _interopDefault(require('@babel/runtime-corejs2/core-js/object/define-properties'));
+var _Object$getOwnPropertyDescriptors = _interopDefault(require('@babel/runtime-corejs2/core-js/object/get-own-property-descriptors'));
+var _Object$getOwnPropertyDescriptor = _interopDefault(require('@babel/runtime-corejs2/core-js/object/get-own-property-descriptor'));
+var _Object$getOwnPropertySymbols = _interopDefault(require('@babel/runtime-corejs2/core-js/object/get-own-property-symbols'));
+var _Object$keys = _interopDefault(require('@babel/runtime-corejs2/core-js/object/keys'));
 var _regeneratorRuntime = _interopDefault(require('@babel/runtime-corejs2/regenerator'));
-var _objectSpread = _interopDefault(require('@babel/runtime-corejs2/helpers/objectSpread'));
+var _defineProperty = _interopDefault(require('@babel/runtime-corejs2/helpers/defineProperty'));
 var _objectWithoutProperties = _interopDefault(require('@babel/runtime-corejs2/helpers/objectWithoutProperties'));
-var _asyncToGenerator = _interopDefault(require('@babel/runtime-corejs2/helpers/asyncToGenerator'));
 var URL = _interopDefault(require('url'));
 var cheerio = _interopDefault(require('cheerio'));
 var TurndownService = _interopDefault(require('turndown'));
@@ -16,13 +21,11 @@ var _Promise = _interopDefault(require('@babel/runtime-corejs2/core-js/promise')
 var request = _interopDefault(require('postman-request'));
 var _Reflect$ownKeys = _interopDefault(require('@babel/runtime-corejs2/core-js/reflect/own-keys'));
 var _toConsumableArray = _interopDefault(require('@babel/runtime-corejs2/helpers/toConsumableArray'));
-var _defineProperty = _interopDefault(require('@babel/runtime-corejs2/helpers/defineProperty'));
 var _parseFloat = _interopDefault(require('@babel/runtime-corejs2/core-js/parse-float'));
 var _Set = _interopDefault(require('@babel/runtime-corejs2/core-js/set'));
 var _typeof = _interopDefault(require('@babel/runtime-corejs2/helpers/typeof'));
 var _getIterator = _interopDefault(require('@babel/runtime-corejs2/core-js/get-iterator'));
 var _Object$assign = _interopDefault(require('@babel/runtime-corejs2/core-js/object/assign'));
-var _Object$keys = _interopDefault(require('@babel/runtime-corejs2/core-js/object/keys'));
 var stringDirection = _interopDefault(require('string-direction'));
 var validUrl = _interopDefault(require('valid-url'));
 var moment = _interopDefault(require('moment-timezone'));
@@ -207,6 +210,10 @@ var BAD_CONTENT_TYPES_RE = new RegExp("^(".concat(BAD_CONTENT_TYPES.join('|'), "
 
 var MAX_CONTENT_LENGTH = 5242880; // Turn the global proxy on or off
 
+function ownKeys(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function get(options) {
   return new _Promise(function (resolve, reject) {
     request(options, function (err, response, body) {
@@ -263,74 +270,65 @@ function validateResponse(response) {
 // TODO: Ensure we are not fetching something enormous. Always return
 //       unicode content for HTML, with charset conversion.
 
-function fetchResource(_x, _x2) {
-  return _fetchResource.apply(this, arguments);
-}
+function fetchResource(url, parsedUrl) {
+  var headers,
+      options,
+      _ref2,
+      response,
+      body,
+      _args = arguments;
 
-function _fetchResource() {
-  _fetchResource = _asyncToGenerator(
-  /*#__PURE__*/
-  _regeneratorRuntime.mark(function _callee(url, parsedUrl) {
-    var headers,
-        options,
-        _ref2,
-        response,
-        body,
-        _args = arguments;
+  return _regeneratorRuntime.async(function fetchResource$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          headers = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
+          parsedUrl = parsedUrl || URL.parse(encodeURI(url));
+          options = _objectSpread({
+            url: parsedUrl.href,
+            headers: _objectSpread({}, REQUEST_HEADERS, {}, headers),
+            timeout: FETCH_TIMEOUT,
+            // Accept cookies
+            jar: true,
+            // Set to null so the response returns as binary and body as buffer
+            // https://github.com/request/request#requestoptions-callback
+            encoding: null,
+            // Accept and decode gzip
+            gzip: true,
+            // Follow any non-GET redirects
+            followAllRedirects: true
+          }, typeof window !== 'undefined' ? {} : {
+            // Follow GET redirects; this option is for Node only
+            followRedirect: true
+          });
+          _context.next = 5;
+          return _regeneratorRuntime.awrap(get(options));
 
-    return _regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            headers = _args.length > 2 && _args[2] !== undefined ? _args[2] : {};
-            parsedUrl = parsedUrl || URL.parse(encodeURI(url));
-            options = _objectSpread({
-              url: parsedUrl.href,
-              headers: _objectSpread({}, REQUEST_HEADERS, headers),
-              timeout: FETCH_TIMEOUT,
-              // Accept cookies
-              jar: true,
-              // Set to null so the response returns as binary and body as buffer
-              // https://github.com/request/request#requestoptions-callback
-              encoding: null,
-              // Accept and decode gzip
-              gzip: true,
-              // Follow any non-GET redirects
-              followAllRedirects: true
-            }, typeof window !== 'undefined' ? {} : {
-              // Follow GET redirects; this option is for Node only
-              followRedirect: true
-            });
-            _context.next = 5;
-            return get(options);
+        case 5:
+          _ref2 = _context.sent;
+          response = _ref2.response;
+          body = _ref2.body;
+          _context.prev = 8;
+          validateResponse(response);
+          return _context.abrupt("return", {
+            body: body,
+            response: response
+          });
 
-          case 5:
-            _ref2 = _context.sent;
-            response = _ref2.response;
-            body = _ref2.body;
-            _context.prev = 8;
-            validateResponse(response);
-            return _context.abrupt("return", {
-              body: body,
-              response: response
-            });
+        case 13:
+          _context.prev = 13;
+          _context.t0 = _context["catch"](8);
+          return _context.abrupt("return", {
+            error: true,
+            message: _context.t0.message
+          });
 
-          case 13:
-            _context.prev = 13;
-            _context.t0 = _context["catch"](8);
-            return _context.abrupt("return", {
-              error: true,
-              message: _context.t0.message
-            });
-
-          case 16:
-          case "end":
-            return _context.stop();
-        }
+        case 16:
+        case "end":
+          return _context.stop();
       }
-    }, _callee, null, [[8, 13]]);
-  }));
-  return _fetchResource.apply(this, arguments);
+    }
+  }, null, null, [[8, 13]]);
 }
 
 function convertMetaProp($, from, to) {
@@ -680,12 +678,16 @@ function cleanHOnes(article, $) {
   return $;
 }
 
+function ownKeys$1(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$1(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { ownKeys$1(source).forEach(function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
 function removeAllButWhitelist($article, $) {
   $article.find('*').each(function (index, node) {
     var attrs = getAttrs(node);
     setAttrs(node, _Reflect$ownKeys(attrs).reduce(function (acc, attr) {
       if (WHITELIST_ATTRS_RE.test(attr)) {
-        return _objectSpread({}, acc, _defineProperty({}, attr, attrs[attr]));
+        return _objectSpread$1({}, acc, _defineProperty({}, attr, attrs[attr]));
       }
 
       return acc;
@@ -965,12 +967,12 @@ function scorePs($, weightNodes) {
     $node = setScore($node, $, getOrInitScore($node, $, weightNodes));
     var $parent = $node.parent();
     var rawScore = scoreNode($node);
-    addScoreTo($parent, $, rawScore, weightNodes);
+    addScoreTo($parent, $, rawScore);
 
     if ($parent) {
       // Add half of the individual content score to the
       // grandparent
-      addScoreTo($parent.parent(), $, rawScore / 2, weightNodes);
+      addScoreTo($parent.parent(), $, rawScore / 2);
     }
   });
   return $;
@@ -1105,8 +1107,6 @@ function findTopCandidate($) {
   $candidate = mergeSiblings($candidate, topScore, $);
   return $candidate;
 }
-
-// Scoring
 
 function removeUnlessContent($node, $, weight) {
   // Explicitly save entry-content-asset tags, which are
@@ -1526,8 +1526,6 @@ function setAttrs(node, attrs) {
   return node;
 }
 
-// DOM manipulation
-
 var IS_LINK = new RegExp('https?://', 'i');
 var IMAGE_RE = '.(png|gif|jpe?g)';
 var IS_IMAGE = new RegExp("".concat(IMAGE_RE), 'i');
@@ -1579,73 +1577,63 @@ var Resource = {
   //                  attempting to fetch it ourselves. Expects a
   //                  string.
   // :param headers: Custom headers to be included in the request
-  create: function () {
-    var _create = _asyncToGenerator(
-    /*#__PURE__*/
-    _regeneratorRuntime.mark(function _callee(url, preparedResponse, parsedUrl) {
-      var headers,
-          result,
-          validResponse,
-          _args = arguments;
-      return _regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              headers = _args.length > 3 && _args[3] !== undefined ? _args[3] : {};
+  create: function create(url, preparedResponse, parsedUrl) {
+    var headers,
+        result,
+        validResponse,
+        _args = arguments;
+    return _regeneratorRuntime.async(function create$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            headers = _args.length > 3 && _args[3] !== undefined ? _args[3] : {};
 
-              if (!preparedResponse) {
-                _context.next = 6;
-                break;
-              }
-
-              validResponse = {
-                statusMessage: 'OK',
-                statusCode: 200,
-                headers: {
-                  'content-type': 'text/html',
-                  'content-length': 500
-                }
-              };
-              result = {
-                body: preparedResponse,
-                response: validResponse
-              };
-              _context.next = 9;
+            if (!preparedResponse) {
+              _context.next = 6;
               break;
+            }
 
-            case 6:
-              _context.next = 8;
-              return fetchResource(url, parsedUrl, headers);
-
-            case 8:
-              result = _context.sent;
-
-            case 9:
-              if (!result.error) {
-                _context.next = 12;
-                break;
+            validResponse = {
+              statusMessage: 'OK',
+              statusCode: 200,
+              headers: {
+                'content-type': 'text/html',
+                'content-length': 500
               }
+            };
+            result = {
+              body: preparedResponse,
+              response: validResponse
+            };
+            _context.next = 9;
+            break;
 
-              result.failed = true;
-              return _context.abrupt("return", result);
+          case 6:
+            _context.next = 8;
+            return _regeneratorRuntime.awrap(fetchResource(url, parsedUrl, headers));
 
-            case 12:
-              return _context.abrupt("return", this.generateDoc(result));
+          case 8:
+            result = _context.sent;
 
-            case 13:
-            case "end":
-              return _context.stop();
-          }
+          case 9:
+            if (!result.error) {
+              _context.next = 12;
+              break;
+            }
+
+            result.failed = true;
+            return _context.abrupt("return", result);
+
+          case 12:
+            return _context.abrupt("return", this.generateDoc(result));
+
+          case 13:
+          case "end":
+            return _context.stop();
         }
-      }, _callee, this);
-    }));
-
-    function create(_x, _x2, _x3) {
-      return _create.apply(this, arguments);
-    }
-
-    return create;
-  }(),
+      }
+    }, null, this);
+  },
   generateDoc: function generateDoc(_ref) {
     var content = _ref.body,
         response = _ref.response;
@@ -1888,13 +1876,13 @@ var TwitterExtractor = {
 var NYTimesExtractor = {
   domain: 'www.nytimes.com',
   title: {
-    selectors: ['h1.g-headline', 'h1[itemprop="headline"]', 'h1.headline']
+    selectors: ['h1.g-headline', 'h1[itemprop="headline"]', 'h1.headline', 'h1 .balancedHeadline']
   },
   author: {
-    selectors: [['meta[name="author"]', 'value'], '.g-byline', '.byline']
+    selectors: [['meta[name="author"]', 'value'], '.g-byline', '.byline', ['meta[name="byl"]', 'value']]
   },
   content: {
-    selectors: ['div.g-blocks', 'article#story'],
+    selectors: ['div.g-blocks', 'section[name="articleBody"]', 'article#story'],
     transforms: {
       'img.g-lazy': function imgGLazy($node) {
         var src = $node.attr('src');
@@ -1991,13 +1979,16 @@ var NewYorkerExtractor = {
 var WiredExtractor = {
   domain: 'www.wired.com',
   title: {
-    selectors: ['h1.post-title']
+    selectors: ['h1.post-title' // enter title selectors
+    ]
   },
   author: {
-    selectors: ['a[rel="author"]']
+    selectors: ['a[rel="author"]' // enter author selectors
+    ]
   },
   content: {
-    selectors: ['article.content'],
+    selectors: ['article.content' // enter content selectors
+    ],
     // Is there anything in the content you selected that needs transformed
     // before it's consumable content? E.g., unusual lazy loaded images
     transforms: [],
@@ -2025,13 +2016,16 @@ var WiredExtractor = {
 var MSNExtractor = {
   domain: 'www.msn.com',
   title: {
-    selectors: ['h1']
+    selectors: ['h1' // enter title selectors
+    ]
   },
   author: {
-    selectors: ['span.authorname-txt']
+    selectors: ['span.authorname-txt' // enter author selectors
+    ]
   },
   content: {
-    selectors: ['div.richtext'],
+    selectors: ['div.richtext' // enter content selectors
+    ],
     // Is there anything in the content you selected that needs transformed
     // before it's consumable content? E.g., unusual lazy loaded images
     transforms: [],
@@ -2059,10 +2053,12 @@ var MSNExtractor = {
 var YahooExtractor = {
   domain: 'www.yahoo.com',
   title: {
-    selectors: ['header.canvas-header']
+    selectors: ['header.canvas-header' // enter title selectors
+    ]
   },
   author: {
-    selectors: ['span.provider-name']
+    selectors: ['span.provider-name' // enter author selectors
+    ]
   },
   content: {
     selectors: [// enter content selectors
@@ -2095,10 +2091,12 @@ var YahooExtractor = {
 var BuzzfeedExtractor = {
   domain: 'www.buzzfeed.com',
   title: {
-    selectors: ['h1[id="post-title"]']
+    selectors: ['h1[id="post-title"]' // enter title selectors
+    ]
   },
   author: {
-    selectors: ['a[data-action="user/username"]', 'byline__author']
+    selectors: ['a[data-action="user/username"]', 'byline__author' // enter author selectors
+    ]
   },
   content: {
     selectors: [['.longform_custom_header_media', '#buzz_sub_buzz'], '#buzz_sub_buzz'],
@@ -2140,13 +2138,16 @@ var BuzzfeedExtractor = {
 var WikiaExtractor = {
   domain: 'fandom.wikia.com',
   title: {
-    selectors: ['h1.entry-title']
+    selectors: ['h1.entry-title' // enter title selectors
+    ]
   },
   author: {
-    selectors: ['.author vcard', '.fn']
+    selectors: ['.author vcard', '.fn' // enter author selectors
+    ]
   },
   content: {
-    selectors: ['.grid-content', '.entry-content'],
+    selectors: ['.grid-content', '.entry-content' // enter content selectors
+    ],
     // Is there anything in the content you selected that needs transformed
     // before it's consumable content? E.g., unusual lazy loaded images
     transforms: [],
@@ -2174,10 +2175,12 @@ var WikiaExtractor = {
 var LittleThingsExtractor = {
   domain: 'www.littlethings.com',
   title: {
-    selectors: ['h1.post-title']
+    selectors: ['h1.post-title' // enter title selectors
+    ]
   },
   author: {
-    selectors: [['meta[name="author"]', 'value']]
+    selectors: [['meta[name="author"]', 'value'] // enter author selectors
+    ]
   },
   content: {
     selectors: [// enter content selectors
@@ -2635,7 +2638,8 @@ var WwwThevergeComExtractor = {
     // Is there anything that is in the result that shouldn't be?
     // The clean selectors will remove anything that matches from
     // the result
-    clean: ['.aside', 'img.c-dynamic-image']
+    clean: ['.aside', 'img.c-dynamic-image' // images come from noscript transform
+    ]
   }
 };
 
@@ -3373,7 +3377,8 @@ var WwwThepoliticalinsiderComExtractor = {
     ]
   },
   lead_image_url: {
-    selectors: [['meta[name="og:image"]', 'value']]
+    selectors: [['meta[name="og:image"]', 'value'] // enter selectors
+    ]
   },
   content: {
     selectors: ['div#article-body'],
@@ -4860,7 +4865,8 @@ var WwwRedditComExtractor = {
   content: {
     selectors: [['div[data-test-id="post-content"] p'], // text post
     ['div[data-test-id="post-content"] a[target="_blank"]:not([data-click-id="timestamp"])', // external link
-    'div[data-test-id="post-content"] div[data-click-id="media"]'], // external link with media preview (YouTube, imgur album, etc...)
+    'div[data-test-id="post-content"] div[data-click-id="media"]' // embedded media
+    ], // external link with media preview (YouTube, imgur album, etc...)
     ['div[data-test-id="post-content"] div[data-click-id="media"]'], // Embedded media (Reddit video)
     ['div[data-test-id="post-content"] a[target="_blank"]:not([data-click-id="timestamp"])'], // external link
     'div[data-test-id="post-content"]'],
@@ -5770,6 +5776,7 @@ var EpaperZeitDeExtractor = {
 
 
 var CustomExtractors = /*#__PURE__*/Object.freeze({
+  __proto__: null,
   BloggerExtractor: BloggerExtractor,
   NYMagExtractor: NYMagExtractor,
   WikipediaExtractor: WikipediaExtractor,
@@ -5906,9 +5913,12 @@ var CustomExtractors = /*#__PURE__*/Object.freeze({
   EpaperZeitDeExtractor: EpaperZeitDeExtractor
 });
 
+function ownKeys$2(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$2(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { ownKeys$2(source).forEach(function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var Extractors = _Object$keys(CustomExtractors).reduce(function (acc, key) {
   var extractor = CustomExtractors[key];
-  return _objectSpread({}, acc, mergeSupportedDomains(extractor));
+  return _objectSpread$2({}, acc, {}, mergeSupportedDomains(extractor));
 }, {});
 
 // CLEAN AUTHOR CONSTANTS
@@ -6016,7 +6026,6 @@ function cleanDatePublished(dateString) {
 function extractCleanNode(article, _ref) {
   var $ = _ref.$,
       _ref$cleanConditional = _ref.cleanConditionally,
-      cleanConditionally = _ref$cleanConditional === void 0 ? true : _ref$cleanConditional,
       _ref$title = _ref.title,
       title = _ref$title === void 0 ? '' : _ref$title,
       _ref$url = _ref.url,
@@ -6049,7 +6058,7 @@ function extractCleanNode(article, _ref) {
   // way to detect menus particularly and remove them.
   // Also optionally running, since it can be overly aggressive.
 
-  if (defaultCleaner) cleanTags(article, $, cleanConditionally); // Remove empty paragraph nodes
+  if (defaultCleaner) cleanTags(article, $); // Remove empty paragraph nodes
 
   removeEmpty(article, $); // Remove unnecessary attributes
 
@@ -6209,6 +6218,9 @@ function extractBestNode($, opts) {
   return $topCandidate;
 }
 
+function ownKeys$3(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$3(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { ownKeys$3(source).forEach(function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var GenericContentExtractor = {
   defaultOpts: {
     stripUnlikelyCandidates: true,
@@ -6239,7 +6251,7 @@ var GenericContentExtractor = {
         html = _ref.html,
         title = _ref.title,
         url = _ref.url;
-    opts = _objectSpread({}, this.defaultOpts, opts);
+    opts = _objectSpread$3({}, this.defaultOpts, {}, opts);
     $ = $ || cheerio.load(html); // Cascade through our extraction-specific opts in an ordered fashion,
     // turning them off as we try to extract content.
 
@@ -6839,7 +6851,7 @@ function scoreByParents$1($link) {
       return;
     }
 
-    var parentData = makeSig($parent, ' '); // If we have 'page' or 'paging' in our data, that's a good
+    var parentData = makeSig($parent); // If we have 'page' or 'paging' in our data, that's a good
     // sign. Add a bonus.
 
     if (!positiveMatch && PAGE_RE.test(parentData)) {
@@ -7144,6 +7156,9 @@ var GenericWordCountExtractor = {
   }
 };
 
+function ownKeys$4(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$4(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { ownKeys$4(source).forEach(function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 var GenericExtractor = {
   // This extractor is the default for all domains
   domain: '*',
@@ -7173,20 +7188,20 @@ var GenericExtractor = {
     var title = this.title(options);
     var date_published = this.date_published(options);
     var author = this.author(options);
-    var content = this.content(_objectSpread({}, options, {
+    var content = this.content(_objectSpread$4({}, options, {
       title: title
     }));
-    var lead_image_url = this.lead_image_url(_objectSpread({}, options, {
+    var lead_image_url = this.lead_image_url(_objectSpread$4({}, options, {
       content: content
     }));
-    var dek = this.dek(_objectSpread({}, options, {
+    var dek = this.dek(_objectSpread$4({}, options, {
       content: content
     }));
     var next_page_url = this.next_page_url(options);
-    var excerpt = this.excerpt(_objectSpread({}, options, {
+    var excerpt = this.excerpt(_objectSpread$4({}, options, {
       content: content
     }));
-    var word_count = this.word_count(_objectSpread({}, options, {
+    var word_count = this.word_count(_objectSpread$4({}, options, {
       content: content
     }));
     var direction = this.direction({
@@ -7233,6 +7248,10 @@ function getExtractor(url, parsedUrl, $) {
   var baseDomain = hostname.split('.').slice(-2).join('.');
   return apiExtractors[hostname] || apiExtractors[baseDomain] || Extractors[hostname] || Extractors[baseDomain] || detectByHtml($) || GenericExtractor;
 }
+
+function ownKeys$5(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread$5(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$5(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { ownKeys$5(source).forEach(function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function cleanBySelectors($content, $, _ref) {
   var clean = _ref.clean;
@@ -7338,7 +7357,7 @@ function select(opts) {
     $content = transformAndClean($content);
 
     if (Cleaners[type]) {
-      Cleaners[type]($content, _objectSpread({}, opts, {
+      Cleaners[type]($content, _objectSpread$5({}, opts, {
         defaultCleaner: defaultCleaner
       }));
     }
@@ -7353,7 +7372,7 @@ function select(opts) {
   }
 
   if (extractHtml) {
-    return selectHtml(matchingSelector);
+    return selectHtml();
   }
 
   var $match;
@@ -7384,7 +7403,7 @@ function select(opts) {
   // for this type; defaults to true
 
   if (defaultCleaner && Cleaners[type]) {
-    return Cleaners[type](result, _objectSpread({}, opts, extractionOpts));
+    return Cleaners[type](result, _objectSpread$5({}, opts, {}, extractionOpts));
   }
 
   return result;
@@ -7394,7 +7413,7 @@ function selectExtendedTypes(extend, opts) {
 
   _Reflect$ownKeys(extend).forEach(function (t) {
     if (!results[t]) {
-      results[t] = select(_objectSpread({}, opts, {
+      results[t] = select(_objectSpread$5({}, opts, {
         type: t,
         extractionOpts: extend[t]
       }));
@@ -7409,7 +7428,7 @@ function extractResult(opts) {
       extractor = opts.extractor,
       _opts$fallback = opts.fallback,
       fallback = _opts$fallback === void 0 ? true : _opts$fallback;
-  var result = select(_objectSpread({}, opts, {
+  var result = select(_objectSpread$5({}, opts, {
     extractionOpts: extractor[type]
   })); // If custom parser succeeds, return the result
 
@@ -7432,12 +7451,12 @@ var RootExtractor = {
         extractedTitle = _opts.extractedTitle; // This is the generic extractor. Run its extract method
 
     if (extractor.domain === '*') return extractor.extract(opts);
-    opts = _objectSpread({}, opts, {
+    opts = _objectSpread$5({}, opts, {
       extractor: extractor
     });
 
     if (contentOnly) {
-      var _content = extractResult(_objectSpread({}, opts, {
+      var _content = extractResult(_objectSpread$5({}, opts, {
         type: 'content',
         extractHtml: true,
         title: extractedTitle
@@ -7448,46 +7467,46 @@ var RootExtractor = {
       };
     }
 
-    var title = extractResult(_objectSpread({}, opts, {
+    var title = extractResult(_objectSpread$5({}, opts, {
       type: 'title'
     }));
-    var date_published = extractResult(_objectSpread({}, opts, {
+    var date_published = extractResult(_objectSpread$5({}, opts, {
       type: 'date_published'
     }));
-    var author = extractResult(_objectSpread({}, opts, {
+    var author = extractResult(_objectSpread$5({}, opts, {
       type: 'author'
     }));
-    var next_page_url = extractResult(_objectSpread({}, opts, {
+    var next_page_url = extractResult(_objectSpread$5({}, opts, {
       type: 'next_page_url'
     }));
-    var content = extractResult(_objectSpread({}, opts, {
+    var content = extractResult(_objectSpread$5({}, opts, {
       type: 'content',
       extractHtml: true,
       title: title
     }));
-    var lead_image_url = extractResult(_objectSpread({}, opts, {
+    var lead_image_url = extractResult(_objectSpread$5({}, opts, {
       type: 'lead_image_url',
       content: content
     }));
-    var excerpt = extractResult(_objectSpread({}, opts, {
+    var excerpt = extractResult(_objectSpread$5({}, opts, {
       type: 'excerpt',
       content: content
     }));
-    var dek = extractResult(_objectSpread({}, opts, {
+    var dek = extractResult(_objectSpread$5({}, opts, {
       type: 'dek',
       content: content,
       excerpt: excerpt
     }));
-    var word_count = extractResult(_objectSpread({}, opts, {
+    var word_count = extractResult(_objectSpread$5({}, opts, {
       type: 'word_count',
       content: content
     }));
-    var direction = extractResult(_objectSpread({}, opts, {
+    var direction = extractResult(_objectSpread$5({}, opts, {
       type: 'direction',
       title: title
     }));
 
-    var _ref3 = extractResult(_objectSpread({}, opts, {
+    var _ref3 = extractResult(_objectSpread$5({}, opts, {
       type: 'url_and_domain'
     })) || {
       url: null,
@@ -7502,7 +7521,7 @@ var RootExtractor = {
       extendedResults = selectExtendedTypes(extractor.extend, opts);
     }
 
-    return _objectSpread({
+    return _objectSpread$5({
       title: title,
       content: content,
       author: author,
@@ -7519,248 +7538,235 @@ var RootExtractor = {
   }
 };
 
-function collectAllPages(_x) {
-  return _collectAllPages.apply(this, arguments);
+function ownKeys$6(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread$6(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$6(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { ownKeys$6(source).forEach(function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function collectAllPages(_ref) {
+  var next_page_url, html, $, metaCache, result, Extractor, title, url, pages, previousUrls, extractorOpts, nextPageResult, word_count;
+  return _regeneratorRuntime.async(function collectAllPages$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          next_page_url = _ref.next_page_url, html = _ref.html, $ = _ref.$, metaCache = _ref.metaCache, result = _ref.result, Extractor = _ref.Extractor, title = _ref.title, url = _ref.url;
+          // At this point, we've fetched just the first page
+          pages = 1;
+          previousUrls = [removeAnchor(url)]; // If we've gone over 26 pages, something has
+          // likely gone wrong.
+
+        case 3:
+          if (!(next_page_url && pages < 26)) {
+            _context.next = 16;
+            break;
+          }
+
+          pages += 1; // eslint-disable-next-line no-await-in-loop
+
+          _context.next = 7;
+          return _regeneratorRuntime.awrap(Resource.create(next_page_url));
+
+        case 7:
+          $ = _context.sent;
+          html = $.html();
+          extractorOpts = {
+            url: next_page_url,
+            html: html,
+            $: $,
+            metaCache: metaCache,
+            contentOnly: true,
+            extractedTitle: title,
+            previousUrls: previousUrls
+          };
+          nextPageResult = RootExtractor.extract(Extractor, extractorOpts);
+          previousUrls.push(next_page_url);
+          result = _objectSpread$6({}, result, {
+            content: "".concat(result.content, "<hr><h4>Page ").concat(pages, "</h4>").concat(nextPageResult.content)
+          }); // eslint-disable-next-line prefer-destructuring
+
+          next_page_url = nextPageResult.next_page_url;
+          _context.next = 3;
+          break;
+
+        case 16:
+          word_count = GenericExtractor.word_count({
+            content: "<div>".concat(result.content, "</div>")
+          });
+          return _context.abrupt("return", _objectSpread$6({}, result, {
+            total_pages: pages,
+            pages_rendered: pages,
+            word_count: word_count
+          }));
+
+        case 18:
+        case "end":
+          return _context.stop();
+      }
+    }
+  });
 }
 
-function _collectAllPages() {
-  _collectAllPages = _asyncToGenerator(
-  /*#__PURE__*/
-  _regeneratorRuntime.mark(function _callee(_ref) {
-    var next_page_url, html, $, metaCache, result, Extractor, title, url, pages, previousUrls, extractorOpts, nextPageResult, word_count;
-    return _regeneratorRuntime.wrap(function _callee$(_context) {
+function ownKeys$7(object, enumerableOnly) { var keys = _Object$keys(object); if (_Object$getOwnPropertySymbols) { var symbols = _Object$getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return _Object$getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread$7(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$7(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (_Object$getOwnPropertyDescriptors) { _Object$defineProperties(target, _Object$getOwnPropertyDescriptors(source)); } else { ownKeys$7(source).forEach(function (key) { _Object$defineProperty(target, key, _Object$getOwnPropertyDescriptor(source, key)); }); } } return target; }
+var Mercury = {
+  parse: function parse(url) {
+    var _ref,
+        html,
+        opts,
+        _opts$fetchAllPages,
+        fetchAllPages,
+        _opts$fallback,
+        fallback,
+        _opts$contentType,
+        contentType,
+        _opts$headers,
+        headers,
+        extend,
+        customExtractor,
+        parsedUrl,
+        $,
+        Extractor,
+        metaCache,
+        extendedTypes,
+        result,
+        _result,
+        title,
+        next_page_url,
+        turndownService,
+        _args = arguments;
+
+    return _regeneratorRuntime.async(function parse$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            next_page_url = _ref.next_page_url, html = _ref.html, $ = _ref.$, metaCache = _ref.metaCache, result = _ref.result, Extractor = _ref.Extractor, title = _ref.title, url = _ref.url;
-            // At this point, we've fetched just the first page
-            pages = 1;
-            previousUrls = [removeAnchor(url)]; // If we've gone over 26 pages, something has
-            // likely gone wrong.
+            _ref = _args.length > 1 && _args[1] !== undefined ? _args[1] : {}, html = _ref.html, opts = _objectWithoutProperties(_ref, ["html"]);
+            _opts$fetchAllPages = opts.fetchAllPages, fetchAllPages = _opts$fetchAllPages === void 0 ? true : _opts$fetchAllPages, _opts$fallback = opts.fallback, fallback = _opts$fallback === void 0 ? true : _opts$fallback, _opts$contentType = opts.contentType, contentType = _opts$contentType === void 0 ? 'html' : _opts$contentType, _opts$headers = opts.headers, headers = _opts$headers === void 0 ? {} : _opts$headers, extend = opts.extend, customExtractor = opts.customExtractor; // if no url was passed and this is the browser version,
+            // set url to window.location.href and load the html
+            // from the current page
 
-          case 3:
-            if (!(next_page_url && pages < 26)) {
-              _context.next = 16;
+            if (!url && cheerio.browser) {
+              url = window.location.href; // eslint-disable-line no-undef
+
+              html = html || cheerio.html();
+            }
+
+            parsedUrl = URL.parse(url);
+
+            if (validateUrl(parsedUrl)) {
+              _context.next = 6;
               break;
             }
 
-            pages += 1; // eslint-disable-next-line no-await-in-loop
+            return _context.abrupt("return", {
+              error: true,
+              message: 'The url parameter passed does not look like a valid URL. Please check your URL and try again.'
+            });
 
-            _context.next = 7;
-            return Resource.create(next_page_url);
+          case 6:
+            _context.next = 8;
+            return _regeneratorRuntime.awrap(Resource.create(url, html, parsedUrl, headers));
 
-          case 7:
+          case 8:
             $ = _context.sent;
-            html = $.html();
-            extractorOpts = {
-              url: next_page_url,
+
+            if (!$.failed) {
+              _context.next = 11;
+              break;
+            }
+
+            return _context.abrupt("return", $);
+
+          case 11:
+            // Add custom extractor via cli.
+            if (customExtractor) {
+              addExtractor(customExtractor);
+            }
+
+            Extractor = getExtractor(url, parsedUrl, $); // console.log(`Using extractor for ${Extractor.domain}`);
+            // if html still has not been set (i.e., url passed to Mercury.parse),
+            // set html from the response of Resource.create
+
+            if (!html) {
+              html = $.html();
+            } // Cached value of every meta name in our document.
+            // Used when extracting title/author/date_published/dek
+
+
+            metaCache = $('meta').map(function (_, node) {
+              return $(node).attr('name');
+            }).toArray();
+            extendedTypes = {};
+
+            if (extend) {
+              extendedTypes = selectExtendedTypes(extend, {
+                $: $,
+                url: url,
+                html: html
+              });
+            }
+
+            result = RootExtractor.extract(Extractor, {
+              url: url,
               html: html,
               $: $,
               metaCache: metaCache,
-              contentOnly: true,
-              extractedTitle: title,
-              previousUrls: previousUrls
-            };
-            nextPageResult = RootExtractor.extract(Extractor, extractorOpts);
-            previousUrls.push(next_page_url);
-            result = _objectSpread({}, result, {
-              content: "".concat(result.content, "<hr><h4>Page ").concat(pages, "</h4>").concat(nextPageResult.content)
-            }); // eslint-disable-next-line prefer-destructuring
-
-            next_page_url = nextPageResult.next_page_url;
-            _context.next = 3;
-            break;
-
-          case 16:
-            word_count = GenericExtractor.word_count({
-              content: "<div>".concat(result.content, "</div>")
+              parsedUrl: parsedUrl,
+              fallback: fallback,
+              contentType: contentType
             });
-            return _context.abrupt("return", _objectSpread({}, result, {
-              total_pages: pages,
-              pages_rendered: pages,
-              word_count: word_count
+            _result = result, title = _result.title, next_page_url = _result.next_page_url; // Fetch more pages if next_page_url found
+
+            if (!(fetchAllPages && next_page_url)) {
+              _context.next = 25;
+              break;
+            }
+
+            _context.next = 22;
+            return _regeneratorRuntime.awrap(collectAllPages({
+              Extractor: Extractor,
+              next_page_url: next_page_url,
+              html: html,
+              $: $,
+              metaCache: metaCache,
+              result: result,
+              title: title,
+              url: url
             }));
 
-          case 18:
+          case 22:
+            result = _context.sent;
+            _context.next = 26;
+            break;
+
+          case 25:
+            result = _objectSpread$7({}, result, {
+              total_pages: 1,
+              rendered_pages: 1
+            });
+
+          case 26:
+            if (contentType === 'markdown') {
+              turndownService = new TurndownService();
+              result.content = turndownService.turndown(result.content);
+            } else if (contentType === 'text') {
+              result.content = $.text($(result.content));
+            }
+
+            return _context.abrupt("return", _objectSpread$7({}, result, {}, extendedTypes));
+
+          case 28:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee);
-  }));
-  return _collectAllPages.apply(this, arguments);
-}
-
-var Mercury = {
-  parse: function () {
-    var _parse = _asyncToGenerator(
-    /*#__PURE__*/
-    _regeneratorRuntime.mark(function _callee(url) {
-      var _ref,
-          html,
-          opts,
-          _opts$fetchAllPages,
-          fetchAllPages,
-          _opts$fallback,
-          fallback,
-          _opts$contentType,
-          contentType,
-          _opts$headers,
-          headers,
-          extend,
-          customExtractor,
-          parsedUrl,
-          $,
-          Extractor,
-          metaCache,
-          extendedTypes,
-          result,
-          _result,
-          title,
-          next_page_url,
-          turndownService,
-          _args = arguments;
-
-      return _regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _ref = _args.length > 1 && _args[1] !== undefined ? _args[1] : {}, html = _ref.html, opts = _objectWithoutProperties(_ref, ["html"]);
-              _opts$fetchAllPages = opts.fetchAllPages, fetchAllPages = _opts$fetchAllPages === void 0 ? true : _opts$fetchAllPages, _opts$fallback = opts.fallback, fallback = _opts$fallback === void 0 ? true : _opts$fallback, _opts$contentType = opts.contentType, contentType = _opts$contentType === void 0 ? 'html' : _opts$contentType, _opts$headers = opts.headers, headers = _opts$headers === void 0 ? {} : _opts$headers, extend = opts.extend, customExtractor = opts.customExtractor; // if no url was passed and this is the browser version,
-              // set url to window.location.href and load the html
-              // from the current page
-
-              if (!url && cheerio.browser) {
-                url = window.location.href; // eslint-disable-line no-undef
-
-                html = html || cheerio.html();
-              }
-
-              parsedUrl = URL.parse(url);
-
-              if (validateUrl(parsedUrl)) {
-                _context.next = 6;
-                break;
-              }
-
-              return _context.abrupt("return", {
-                error: true,
-                message: 'The url parameter passed does not look like a valid URL. Please check your URL and try again.'
-              });
-
-            case 6:
-              _context.next = 8;
-              return Resource.create(url, html, parsedUrl, headers);
-
-            case 8:
-              $ = _context.sent;
-
-              if (!$.failed) {
-                _context.next = 11;
-                break;
-              }
-
-              return _context.abrupt("return", $);
-
-            case 11:
-              // Add custom extractor via cli.
-              if (customExtractor) {
-                addExtractor(customExtractor);
-              }
-
-              Extractor = getExtractor(url, parsedUrl, $); // console.log(`Using extractor for ${Extractor.domain}`);
-              // if html still has not been set (i.e., url passed to Mercury.parse),
-              // set html from the response of Resource.create
-
-              if (!html) {
-                html = $.html();
-              } // Cached value of every meta name in our document.
-              // Used when extracting title/author/date_published/dek
-
-
-              metaCache = $('meta').map(function (_, node) {
-                return $(node).attr('name');
-              }).toArray();
-              extendedTypes = {};
-
-              if (extend) {
-                extendedTypes = selectExtendedTypes(extend, {
-                  $: $,
-                  url: url,
-                  html: html
-                });
-              }
-
-              result = RootExtractor.extract(Extractor, {
-                url: url,
-                html: html,
-                $: $,
-                metaCache: metaCache,
-                parsedUrl: parsedUrl,
-                fallback: fallback,
-                contentType: contentType
-              });
-              _result = result, title = _result.title, next_page_url = _result.next_page_url; // Fetch more pages if next_page_url found
-
-              if (!(fetchAllPages && next_page_url)) {
-                _context.next = 25;
-                break;
-              }
-
-              _context.next = 22;
-              return collectAllPages({
-                Extractor: Extractor,
-                next_page_url: next_page_url,
-                html: html,
-                $: $,
-                metaCache: metaCache,
-                result: result,
-                title: title,
-                url: url
-              });
-
-            case 22:
-              result = _context.sent;
-              _context.next = 26;
-              break;
-
-            case 25:
-              result = _objectSpread({}, result, {
-                total_pages: 1,
-                rendered_pages: 1
-              });
-
-            case 26:
-              if (contentType === 'markdown') {
-                turndownService = new TurndownService();
-                result.content = turndownService.turndown(result.content);
-              } else if (contentType === 'text') {
-                result.content = $.text($(result.content));
-              }
-
-              return _context.abrupt("return", _objectSpread({}, result, extendedTypes));
-
-            case 28:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee);
-    }));
-
-    function parse(_x) {
-      return _parse.apply(this, arguments);
-    }
-
-    return parse;
-  }(),
+    });
+  },
   browser: !!cheerio.browser,
   // A convenience method for getting a resource
   // to work with, e.g., for custom extractor generator
   fetchResource: function fetchResource(url) {
     return Resource.create(url);
   },
-  addExtractor: function addExtractor$$1(extractor) {
+  addExtractor: function addExtractor$1(extractor) {
     return addExtractor(extractor);
   }
 };
