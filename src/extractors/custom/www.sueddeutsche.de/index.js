@@ -31,6 +31,12 @@ export const WwwSueddeutscheDeExtractor = {
     // Is there anything that is in the result that shouldn't be?
     // The clean selectors will remove anything that matches from
     // the result
-    clean: ['aside.sz-article__sharing-bar'],
+    clean: [
+      '.sz-article__sharing-bar',
+      '.sz-article-header__time',
+      '.pay-furtherreading',
+      '.pay-furtherreading-headline',
+      '.pay-furtherreading-body',
+    ],
   },
 };
