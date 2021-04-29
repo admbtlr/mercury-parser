@@ -8,6 +8,7 @@ function absolutize($, rootUrl, attr) {
   $(`[${attr}]`).each((_, node) => {
     const attrs = getAttrs(node);
     const url = attrs[attr];
+    if (!url) return;
     const absoluteUrl = URL.resolve(baseUrl || rootUrl, url);
 
     setAttr(node, attr, absoluteUrl);
@@ -26,6 +27,7 @@ function absolutizeSet($, rootUrl, $content) {
       const candidates = urlSet.match(
         /(?:\s*)(\S+(?:\s*[\d.]+[wx])?)(?:\s*,\s*)?/g
       );
+      if (!candidates) return;
       const absoluteCandidates = candidates.map(candidate => {
         // a candidate URL cannot start or end with a comma
         // descriptors are separated from the URLs by unescaped whitespace
