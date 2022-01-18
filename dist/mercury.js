@@ -1944,13 +1944,13 @@ var TheAtlanticExtractor = {
 var NewYorkerExtractor = {
   domain: 'www.newyorker.com',
   title: {
-    selectors: ['h1[class^="ArticleHeader__hed"]', ['meta[name="og:title"]', 'value']]
+    selectors: ['h1[class^="content-header"]', 'h1[class^="ArticleHeader__hed"]', ['meta[name="og:title"]', 'value']]
   },
   author: {
-    selectors: ['div[class^="ArticleContributors"] a[rel="author"]', 'article header div[class*="Byline__multipleContributors"]']
+    selectors: [['meta[name="author"]', 'value'], 'div[class^="ArticleContributors"] a[rel="author"]', 'article header div[class*="Byline__multipleContributors"]']
   },
   content: {
-    selectors: ['main[class^="Layout__content"]'],
+    selectors: ['article.article.main-content', 'main[class^="Layout__content"]'],
     // Is there anything in the content you selected that needs transformed
     // before it's consumable content? E.g., unusual lazy loaded images
     transforms: [],
@@ -1960,15 +1960,14 @@ var NewYorkerExtractor = {
     clean: ['footer[class^="ArticleFooter__footer"]']
   },
   date_published: {
-    selectors: [['meta[name="pubdate"]', 'value']],
-    format: 'YYYYMMDD',
+    selectors: ['time.content-header__publish-date', ['meta[name="pubdate"]', 'value']],
     timezone: 'America/New_York'
   },
   lead_image_url: {
     selectors: [['meta[name="og:image"]', 'value']]
   },
   dek: {
-    selectors: ['h2[class^="ArticleHeader__dek"]']
+    selectors: ['div.content-header__dek', 'h2[class^="ArticleHeader__dek"]']
   },
   next_page_url: null,
   excerpt: null
@@ -1980,15 +1979,15 @@ var NewYorkerExtractor = {
 var WiredExtractor = {
   domain: 'www.wired.com',
   title: {
-    selectors: ['h1.post-title' // enter title selectors
+    selectors: ['h1.content-header__hed', 'h1.post-title' // enter title selectors
     ]
   },
   author: {
-    selectors: ['a[rel="author"]' // enter author selectors
+    selectors: [['meta[name="author"]', 'value'], 'a[rel="author"]' // enter author selectors
     ]
   },
   content: {
-    selectors: ['article.content' // enter content selectors
+    selectors: ['article.article.main-content', 'article.content' // enter content selectors
     ],
     // Is there anything in the content you selected that needs transformed
     // before it's consumable content? E.g., unusual lazy loaded images
@@ -1999,7 +1998,7 @@ var WiredExtractor = {
     clean: ['.visually-hidden', 'figcaption img.photo']
   },
   date_published: {
-    selectors: [['meta[itemprop="datePublished"]', 'value']]
+    selectors: ['time.content-header__publish-date', ['meta[itemprop="datePublished"]', 'value']]
   },
   lead_image_url: {
     selectors: [['meta[name="og:image"]', 'value']]
